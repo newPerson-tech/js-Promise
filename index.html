@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fetch Paragraph by ID</title>
+    <title>Fetch Post by ID</title>
     <style>
         #commentInput {
             margin-top: 10px;
@@ -14,41 +14,41 @@
 
 <body>
     <form id="fetchForm">
-        <label for="idInput">Enter ID (1 to 100): </label>
+        <label for="idInput">Enter Post ID (1 to 100): </label>
         <input type="number" id="idInput" min="1" max="100" required>
-        <button type="button" onclick="fetchParagraph()">Fetch Paragraph</button>
+        <button type="button" onclick="fetchPost()">Fetch Post</button>
     </form>
 
     <div id="result"></div>
     <div id="commentSection"></div>
 
     <script>
-        function fetchParagraph() {
-            const idInput = document.getElementById('idInput').value;
+        function fetchPost() {
+            const postId = document.getElementById('idInput').value;
 
-            const fetchParagraphPromise = new Promise((resolve, reject) => {
-
-                setTimeout(() => {
-                    const paragraphs = document.getElementsByTagName('p');
-                    const paragraph = Array.from(paragraphs).find(p => p.id === `para${idInput}`);
-
-                    if (paragraph) {
-                        resolve(paragraph.textContent);
-                    } else {
-                        reject(new Error('Paragraph not found.'));
+            fetch(`https://jsonplaceholder.typicode.com/posts/${postId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Post not found.');
                     }
-                }, 1000);
-            });
-
-            fetchParagraphPromise
-                .then(result => {
-                    document.getElementById('result').textContent = result;
+                    return response.json();
+                })
+                .then(post => {
+                    displayPost(post);
                     displayCommentSection();
                 })
                 .catch(error => {
                     document.getElementById('result').textContent = `Error: ${error.message}`;
                     document.getElementById('commentSection').innerHTML = ''; // Clear comment section on error
                 });
+        }
+
+        function displayPost(post) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <h2>${post.title}</h2>
+                <p>${post.body}</p>
+            `;
         }
 
         function displayCommentSection() {
